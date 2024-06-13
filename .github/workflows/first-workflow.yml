@@ -1,3 +1,4 @@
+#github action file
 name: First-Workflow
 on: workflow_dispatch #manual trigger
 jobs:
@@ -8,4 +9,9 @@ jobs:
         run: echo "Hello, World!"
       - name: print bye
         run: echo "Goodbye, World!"
+      - name: multi-line command
+        run: |
+          echo "This is a multi-line command"
+          echo "This is the second line"
+          echo "This is the third line"
       
