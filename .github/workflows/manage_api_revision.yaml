@@ -18,5 +18,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Log in to Azure
-      run: az login --service-principal -u fca4af1e-520f-4fa2-9435-5d61bf418430 -p a-n8Q~ecSAmoyjoPW5V7F~2Zwj9Jm.nQWF62xc1S --tenant 84f1e4ea-8554-43e1-8709-f0b8589ea118
-   
+      run: az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} -p ${{ secrets.AZURE_CLIENT_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
