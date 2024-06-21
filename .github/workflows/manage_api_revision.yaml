@@ -71,8 +71,8 @@ jobs:
 
     - name: Set environment variables for create action
       run: |
-        for var in $(yq eval 'keys | .[]' revision/variables/create.yaml); do
-          value=$(yq eval ".${var}" revision/variables/create.yaml)
+        for var in $(yq eval 'keys | .[]' revision/variables/activate.yaml); do
+          value=$(yq eval ".${var}" revision/variables/activate.yaml)
           echo "${var}=${value}" >> $GITHUB_ENV
         done
     - name: Log in to Azure
