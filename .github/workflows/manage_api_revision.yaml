@@ -64,27 +64,26 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set environment variables for activate action
-      id: set-activate-env
-      uses: actions/github-script@v6
-      with:
-        script: |
-          const fs = require('fs');
-          const yaml = require('js-yaml');
-          const filePath = 'revision/variables/activate.yaml';
-          const envVariables = yaml.load(fs.readFileSync(filePath, 'utf8'));
+    - name: Install yq
+      run: |
+        sudo wget https://github.com/mikefarah/yq/releases/download/v4.16.1/yq_linux_amd64 -O /usr/bin/yq
+        sudo chmod +x /usr/bin/yq
 
-          for (const [key, value] of Object.entries(envVariables)) {
-            core.exportVariable(key, value);
-          }
-
-    - name: Set up Azure CLI
-      uses: azure/CLI@v1
-      with:
-        azcliversion: latest
-
+    - name: Set environment variables for create action
+      run: |
+        for var in $(yq eval 'keys | .[]' revision/variables/create.yaml); do
+          value=$(yq eval ".${var}" revision/variables/create.yaml)
+          echo "${var}=${value}" >> $GITHUB_ENV
+        done
     - name: Log in to Azure
       run: az login --service-principal -u fca4af1e-520f-4fa2-9435-5d61bf418430 -p a-n8Q~ecSAmoyjoPW5V7F~2Zwj9Jm.nQWF62xc1S --tenant 84f1e4ea-8554-43e1-8709-f0b8589ea118
+
+    - name: Set up Azure CLI
+      uses: azure/CLI@v2
+      with:
+        azcliversion: latest
+        inlineScript: |
+            az account show
     - name: Check current API revision
       id: check_current_revision
       run: |
