@@ -1,4 +1,4 @@
 RESOURCE_GROUP: "1-0e617dcd-playground-sandbox"
 APIM_NAME: "test-apim-ep"
-API_ID: "your_api_id"
+API_ID: "echo-api"
 REVISION_TO_DELETE: "2"
