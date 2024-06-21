@@ -21,19 +21,17 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set environment variables for create action
-      id: set-create-env
-      uses: actions/github-script@v6
-      with:
-        script: |
-          const fs = require('fs');
-          const yaml = require('js-yaml');
-          const filePath = 'revision/variables/create.yaml';
-          const envVariables = yaml.load(fs.readFileSync(filePath, 'utf8'));
+    - name: Install yq
+      run: |
+        sudo wget https://github.com/mikefarah/yq/releases/download/v4.16.1/yq_linux_amd64 -O /usr/bin/yq
+        sudo chmod +x /usr/bin/yq
 
-          for (const [key, value] of Object.entries(envVariables)) {
-            core.exportVariable(key, value);
-          }
+    - name: Set environment variables for create action
+      run: |
+        for var in $(yq eval 'keys | .[]' revision/variables/create.yaml); do
+          value=$(yq eval ".${var}" revision/variables/create.yaml)
+          echo "${var}=${value}" >> $GITHUB_ENV
+        done
 
     - name: Set up Azure CLI
       uses: azure/CLI@v1
