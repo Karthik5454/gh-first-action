@@ -1,0 +1,5 @@
+RESOURCE_GROUP: "1-0e617dcd-playground-sandbox"
+APIM_NAME: "test-apim-ep"
+API_ID: "echo-api"
+NEW_REVISION_NUMBER: "2"
+REVISION_DESCRIPTION: "This is for the second revision"
