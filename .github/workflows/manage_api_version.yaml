@@ -57,4 +57,4 @@ jobs:
     - name: Add API Version to Azure API Management
       if: env.create_new_version_set == 'true'
       run: |
-        az apim api versionset create --resource-group ${{ env.resource_group }} --service-name ${{ env.service_name }} --display-name "Version ${{ env.version }}" --versioning-scheme "path"
+        az apim api versionset create --resource-group ${{ env.resource_group }} --service-name ${{ env.service_name }} --display-name "Version ${{ env.version }}" --versioning-scheme Segment
