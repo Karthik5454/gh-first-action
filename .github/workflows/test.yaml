@@ -28,4 +28,4 @@ jobs:
     - name: run commabd
       run: az apim api export --resource-group 1-e3276ccf-playground-sandbox --service-name api-endpoint-test --api-id echo-api --export-format OpenApiJsonFile --file-path existing_api_v1.json
     - name: run another command
-      run: az apim api import --resource-group 1-e3276ccf-playground-sandbox --service-name api-endpoint-test --path echo-api --api-id echo-api --version-set-id 9e673296-3528-419b-909f-e7b05fb7ea98 --version v2 --specification-format OpenApi --specification-path existing_api_v1.json
+      run: az apim api import --resource-group 1-e3276ccf-playground-sandbox --service-name api-endpoint-test  --path echo-api --api-id echo-api --api-version-set-id 52f2d2bf0a3a4bfb91256a8102cb4820 --api-version v2 --specification-format OpenApi --specification-path existing_api_v1.json
