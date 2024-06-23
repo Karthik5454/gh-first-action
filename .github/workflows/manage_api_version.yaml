@@ -39,7 +39,9 @@ jobs:
       uses: azure/CLI@v2
       with:
         azcliversion: latest
-
+        inlineScript: |
+            az account show
+            
     - name: Check if API version set exists
       id: check-version-set
       run: |
