@@ -1,0 +1,29 @@
+name: Add API Version to Azure API Management
+
+on:
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  add-version:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install yq
+      run: |
+        sudo wget https://github.com/mikefarah/yq/releases/download/v4.16.1/yq_linux_amd64 -O /usr/bin/yq
+        sudo chmod +x /usr/bin/yq
+
+    - name: Log in to Azure
+      run: az login --service-principal -u b68737df-ecf7-47f8-ab56-070ddbf5514c -p e268Q~iD64TpKVLbce.8dydWnALC0nMRkX-vCbzJ --tenant 84f1e4ea-8554-43e1-8709-f0b8589ea118
+
+    - name: Set up Azure CLI
+      uses: azure/CLI@v2
+      with:
+        azcliversion: latest
+        inlineScript: |
+            az account show
+    - name: run commabd
+      run: az apim api export --resource-group 1-e3276ccf-playground-sandbox --service-name api-endpoint-test --api-id echo-api --export-format OpenApiJsonFile --file-path existing_api_v1.json
