@@ -1,0 +1,4 @@
+RESOURCE_GROUP: "1-e3276ccf-playground-sandbox"
+APIM_NAME: "api-endpoint-test"
+API_ID: "echo-api"
+VERSION: "2"
