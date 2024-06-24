@@ -33,7 +33,7 @@ jobs:
           echo "${var}=${value}" >> $GITHUB_ENV
         done
     - name: Log in to Azure
-      run: az login --service-principal -u fca4af1e-520f-4fa2-9435-5d61bf418430 -p a-n8Q~ecSAmoyjoPW5V7F~2Zwj9Jm.nQWF62xc1S --tenant 84f1e4ea-8554-43e1-8709-f0b8589ea118
+      run: az login --service-principal -u 9231f0ec-8631-4826-a9ee-2a758f70ce63 -p BVR8Q~3sKlpct7mW3uoCbDA5SHeLrfLN_2xq5dbD --tenant 84f1e4ea-8554-43e1-8709-f0b8589ea118
 
     - name: Set up Azure CLI
       uses: azure/CLI@v2
