@@ -50,6 +50,7 @@ jobs:
           Connect-AzAccount -ServicePrincipal -Credential (New-Object System.Management.Automation.PSCredential('9231f0ec-8631-4826-a9ee-2a758f70ce63', (ConvertTo-SecureString 'BVR8Q~3sKlpct7mW3uoCbDA5SHeLrfLN_2xq5dbD' -AsPlainText -Force))) -Tenant '84f1e4ea-8554-43e1-8709-f0b8589ea118'
           $context = New-AzApiManagementContext -ResourceGroupName '${{env.resourceGroupName}}' -ServiceName '${{env.serviceName}}'
           $versionSet = Get-AzApiManagementApiVersionSet -Context $context -ApiVersionSetId "6678e9adccb244f33b121b04"
+          $sourceApi = Get-AzApiManagementApi -Context $context -ApiId '${{ env.sourceApiId }}'
           $description = $sourceApi.Description
           $serviceUrl = $sourceApi.ServiceUrl
           $path = $sourceApi.Path
