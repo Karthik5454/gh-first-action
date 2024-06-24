@@ -38,7 +38,6 @@ jobs:
       id: load-variables
       run: |
         variables=$(cat variables/version/create_version.yaml)
-        echo "::set-output name=variables::$variables"
       
     - name: Set variables
       id: set-variables
