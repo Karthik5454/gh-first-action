@@ -50,7 +50,7 @@ jobs:
       with:
         azPSVersion: "latest"
         inlineScript: |
-          $context = New-AzApiManagementContext -ResourceGroupName $resourceGroupName -ServiceName $serviceName
+          $context = New-AzApiManagementContext -ResourceGroupName '${{env.resourceGroupName}}' -ServiceName '${{env.serviceName}}'
 
     - name: Create API Version in Azure API Management
       env:
