@@ -125,7 +125,7 @@ jobs:
     - name: Load variables from YAML
       id: load-variables
       run: |
-        variables=$(cat revision/variables/activate.yaml)
+        variables=$(cat revision/variables/delete.yaml)
         echo "resourceGroupName=$(echo "$variables" | yq eval '.resourceGroupName' -)" >> $GITHUB_ENV
         echo "serviceName=$(echo "$variables" | yq eval '.serviceName' -)" >> $GITHUB_ENV
         echo "ApiId=$(echo "$variables" | yq eval '.ApiId' -)" >> $GITHUB_ENV
