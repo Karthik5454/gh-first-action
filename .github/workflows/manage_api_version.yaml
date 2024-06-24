@@ -21,10 +21,10 @@ jobs:
         inlineScript: |
           az account show
       
-    - name: Install PowerShell
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y powershell
+    - name: Azure PowerShell script
+      uses: azure/powershell@v2
+      with:
+        azPSVersion: "latest"
         
     - name: Install yq
       run: |
