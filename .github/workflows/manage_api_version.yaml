@@ -25,6 +25,8 @@ jobs:
       uses: azure/powershell@v2
       with:
         azPSVersion: "latest"
+        inlineScript: |
+          $context = New-AzApiManagementContext -ResourceGroupName "1-8cb015fb-playground-sandbox" -ServiceName "apim-test-endpoint"
         
     - name: Install yq
       run: |
