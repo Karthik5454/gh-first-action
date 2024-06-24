@@ -43,6 +43,7 @@ jobs:
         resourceGroupName: ${{ env.resourceGroupName }}
         serviceName: ${{ env.serviceName }}
         sourceApiId: ${{ env.sourceApiId }}
+        NewApiIDName: ${{ env.newApiId }}
       uses: azure/powershell@v2
       with:
         azPSVersion: "latest"
@@ -53,6 +54,7 @@ jobs:
           $sourceApi = Get-AzApiManagementApi -Context $context -ApiId '${{ env.sourceApiId }}'
           $description = $sourceApi.Description
           $serviceUrl = $sourceApi.ServiceUrl
+          $serviceUrl
           $path = $sourceApi.Path
           $protocols = $sourceApi.Protocols
           New-AzApiManagementApi -Context $context -Name '${{ env.newApiId }}' -ApiId '${{ env.newApiId }}' -Description $description -SubscriptionRequired -ServiceUrl $serviceUrl -Path $path -Protocols $protocols -ApiVersionSetId $versionSet.ApiVersionSetId -SourceApiId '${{ env.sourceApiId }}' -ApiVersion $env:apiVersion
