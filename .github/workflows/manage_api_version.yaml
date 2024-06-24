@@ -34,6 +34,9 @@ jobs:
         echo "serviceName=$(echo "$variables" | yq eval '.serviceName' -)" >> $GITHUB_ENV
         echo "sourceApiId=$(echo "$variables" | yq eval '.sourceApiId' -)" >> $GITHUB_ENV
 
+    - name: Log in to Azure
+      run: az login --service-principal -u 9231f0ec-8631-4826-a9ee-2a758f70ce63 -p BVR8Q~3sKlpct7mW3uoCbDA5SHeLrfLN_2xq5dbD --tenant 84f1e4ea-8554-43
+
     - name: Azure PowerShell script
       env:
         resourceGroupName: ${{ env.resourceGroupName }}
@@ -43,6 +46,7 @@ jobs:
       with:
         azPSVersion: "latest"
         inlineScript: |
+          Connect-AzAccount -ServicePrincipal -Credential (New-Object System.Management.Automation.PSCredential('${{ secrets.AZURE_CLIENT_ID }}', (ConvertTo-SecureString '${{ secrets.AZURE_CLIENT_SECRET }}' -AsPlainText -Force))) -Tenant '${{ secrets.AZURE_TENANT_ID }}'
           $context = New-AzApiManagementContext -ResourceGroupName '${{env.resourceGroupName}}' -ServiceName '${{env.serviceName}}'
           $versionSet = Get-AzApiManagementApiVersionSet -Context $context -ApiVersionSetId "6678e9adccb244f33b121b04"
           New-AzApiManagementApi -Context $context -Name "echo-api-v3" -ApiId "echo-api-v3" -Description "Create Echo Api V3" -SubscriptionRequired -ServiceUrl "https://echoapi.cloudapp.net/echo/v3" -Path "echo" -Protocols @("https") -ApiVersionSetId $versionSet.ApiVersionSetId -SourceApiId $sourceApiId -ApiVersion "v3"
