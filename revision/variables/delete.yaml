@@ -1,4 +1,4 @@
-resourceGroupName: "1-0e617dcd-playground-sandbox"
-serviceName: "test-apim-ep"
+resourceGroupName: "1-63fa9c52-playground-sandbox"
+serviceName: "apim-test-karthik"
 ApiId: "echo-api"
 REVISION_TO_DELETE: "2"
