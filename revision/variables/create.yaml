@@ -1,5 +1,5 @@
-RESOURCE_GROUP: "1-63fa9c52-playground-sandbox"
-APIM_NAME: "apim-test-karthik"
+RESOURCE_GROUP: "1-174042b0-playground-sandbox"
+APIM_NAME: "apim-test-karthik1"
 API_ID: "echo-api"
 NEW_REVISION_NUMBER: "2"
 REVISION_DESCRIPTION: "This is the second revision"
