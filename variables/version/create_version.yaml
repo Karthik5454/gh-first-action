@@ -1,0 +1,4 @@
+resourceGroupName: "1-63fa9c52-playground-sandbox"
+serviceName: "apim-test-karthik"
+sourceApiId: "echo-api"
+VERSION: "2"
