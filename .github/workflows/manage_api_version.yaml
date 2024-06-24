@@ -51,19 +51,7 @@ jobs:
         azPSVersion: "latest"
         inlineScript: |
           $context = New-AzApiManagementContext -ResourceGroupName '${{env.resourceGroupName}}' -ServiceName '${{env.serviceName}}'
+          $versionSet = Get-AzApiManagementApiVersionSet -Context $context -ApiVersionSetId "6678e9adccb244f33b121b04"
+          New-AzApiManagementApi -Context $context -Name "echo-api-v3" -ApiId "echo-api-v3" -Description "Create Echo Api V3" -SubscriptionRequired -ServiceUrl "https://echoapi.cloudapp.net/echo/v3" -Path "echo" -Protocols @("https") -ApiVersionSetId $versionSet.ApiVersionSetId -SourceApiId $sourceApiId -ApiVersion "v3"
 
-    - name: Create API Version in Azure API Management
-      env:
-        resourceGroupName: ${{ env.resourceGroupName }}
-        serviceName: ${{ env.serviceName }}
-        sourceApiId: ${{ env.sourceApiId }}
-      run: |
-        # Initialize Azure API Management context
-        $context = New-AzApiManagementContext -ResourceGroupName $resourceGroupName -ServiceName $serviceName
-        
-        # Get the version set details
-        $versionSet = Get-AzApiManagementApiVersionSet -Context $context -ApiVersionSetId "6678e9adccb244f33b121b04"
-        
-        # Create new API version based on variables
-        New-AzApiManagementApi -Context $context -Name "echo-api-v3" -ApiId "echo-api-v3" -Description "Create Echo Api V3" -SubscriptionRequired -ServiceUrl "https://echoapi.cloudapp.net/echo/v3" -Path "echo" -Protocols @("https") -ApiVersionSetId $versionSet.ApiVersionSetId -SourceApiId $sourceApiId -ApiVersion "v3"
-      
+   
