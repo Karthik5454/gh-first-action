@@ -1,60 +1,58 @@
-name: Add API Version to Azure API Management
+name: Create API Version in Azure API Management
 
 on:
   workflow_dispatch:  # Manual trigger
-    inputs:
-      version:
-        description: 'Version number'
-        required: true
-      resource-group:
-        description: 'Resource group name'
-        required: true
-      service-name:
-        description: 'API Management service name'
-        required: true
 
 jobs:
-  add-version:
+  create-api-version:
     runs-on: ubuntu-latest
-
+    
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Install yq
-      run: |
-        sudo wget https://github.com/mikefarah/yq/releases/download/v4.16.1/yq_linux_amd64 -O /usr/bin/yq
-        sudo chmod +x /usr/bin/yq
-
-    - name: Set environment variables for create action
-      run: |
-        echo "version=${{ github.event.inputs.version }}" >> $GITHUB_ENV
-        echo "resource_group=${{ github.event.inputs.resource-group }}" >> $GITHUB_ENV
-        echo "service_name=${{ github.event.inputs.service-name }}" >> $GITHUB_ENV
-
     - name: Log in to Azure
-      run: az login --service-principal -u b68737df-ecf7-47f8-ab56-070ddbf5514c -p e268Q~iD64TpKVLbce.8dydWnALC0nMRkX-vCbzJ --tenant 84f1e4ea-8554-43e1-8709-f0b8589ea118
+      run: az login --service-principal -u 9231f0ec-8631-4826-a9ee-2a758f70ce63 -p BVR8Q~3sKlpct7mW3uoCbDA5SHeLrfLN_2xq5dbD --tenant 84f1e4ea-8554-43e1-8709-f0b8589ea118
 
     - name: Set up Azure CLI
       uses: azure/CLI@v2
       with:
         azcliversion: latest
         inlineScript: |
-            az account show
-            
-    - name: Check if API version set exists
-      id: check-version-set
-      run: |
-        result=$(az apim api versionset list --resource-group ${{ env.resource_group }} --service-name ${{ env.service_name }} --query "[?displayName=='Version ${{ env.version }}'].{Name:name}" --output tsv)
-        if [ -z "$result" ]; then
-          echo "Version set does not exist, will create."
-          echo "create_new_version_set=true" >> $GITHUB_ENV
-        else
-          echo "Version set already exists, skipping creation."
-          echo "create_new_version_set=false" >> $GITHUB_ENV
-        fi
+          az account show
+      
+    - name: Install PowerShell Core
+      uses: actions/setup-pythons@v2
+      with:
+        python-version: '3.x'  # Ensure PowerShell is installed, typically comes with Python 3.x setup
 
-    - name: Add API Version to Azure API Management
-      if: env.create_new_version_set == 'true'
+    - name: Install yq
       run: |
-        az apim api versionset create --resource-group ${{ env.resource_group }} --service-name ${{ env.service_name }} --display-name "Version ${{ env.version }}" --versioning-scheme Segment
+        sudo wget https://github.com/mikefarah/yq/releases/download/v4.16.1/yq_linux_amd64 -O /usr/bin/yq
+        sudo chmod +x /usr/bin/yq
+
+    
+    - name: Load variables from YAML
+      id: load-variables
+      run: |
+        variables=$(cat variables/version/create_version.yaml)
+        echo "::set-output name=variables::$variables"
+      
+    - name: Set variables
+      id: set-variables
+      run: |
+        resourceGroupName=$(echo "${{ steps.load-variables.outputs.variables }}" | yq eval '.resourceGroupName' -)
+        serviceName=$(echo "${{ steps.load-variables.outputs.variables }}" | yq eval '.serviceName' -)
+        sourceApiId=$(echo "${{ steps.load-variables.outputs.variables }}" | yq eval '.sourceApiId' -)
+
+    - name: Create API Version in Azure API Management
+      run: |
+        # Initialize Azure API Management context
+        $context = New-AzApiManagementContext -ResourceGroupName $resourceGroupName -ServiceName $serviceName
+        
+        # Get the version set details
+        $versionSet = Get-AzApiManagementApiVersionSet -Context $context -ApiVersionSetId "6678e9adccb244f33b121b04"
+        
+        # Create new API version based on variables
+        New-AzApiManagementApi -Context $context -Name "echo-api-v3" -ApiId "echo-api-v3" -Description "Create Echo Api V3" -SubscriptionRequired -ServiceUrl "https://echoapi.cloudapp.net/echo/v3" -Path "echo" -Protocols @("https") -ApiVersionSetId $versionSet.ApiVersionSetId -SourceApiId $sourceApiId -ApiVersion "v3"
+      
