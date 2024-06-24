@@ -41,6 +41,17 @@ jobs:
         echo "serviceName=$(echo "$variables" | yq eval '.serviceName' -)" >> $GITHUB_ENV
         echo "sourceApiId=$(echo "$variables" | yq eval '.sourceApiId' -)" >> $GITHUB_ENV
 
+    - name: Azure PowerShell script
+      env:
+        resourceGroupName: ${{ env.resourceGroupName }}
+        serviceName: ${{ env.serviceName }}
+        sourceApiId: ${{ env.sourceApiId }}
+      uses: azure/powershell@v2
+      with:
+        azPSVersion: "latest"
+        inlineScript: |
+          $context = New-AzApiManagementContext -ResourceGroupName $resourceGroupName -ServiceName $serviceName
+
     - name: Create API Version in Azure API Management
       env:
         resourceGroupName: ${{ env.resourceGroupName }}
