@@ -61,49 +61,60 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Install yq
-      run: |
-        sudo wget https://github.com/mikefarah/yq/releases/download/v4.16.1/yq_linux_amd64 -O /usr/bin/yq
-        sudo chmod +x /usr/bin/yq
-
-    - name: Set environment variables for create action
-      run: |
-        for var in $(yq eval 'keys | .[]' revision/variables/activate.yaml); do
-          value=$(yq eval ".${var}" revision/variables/activate.yaml)
-          echo "${var}=${value}" >> $GITHUB_ENV
-        done
     - name: Log in to Azure
-      run: az login --service-principal -u fca4af1e-520f-4fa2-9435-5d61bf418430 -p a-n8Q~ecSAmoyjoPW5V7F~2Zwj9Jm.nQWF62xc1S --tenant 84f1e4ea-8554-43e1-8709-f0b8589ea118
+      run: az login --service-principal -u 9231f0ec-8631-4826-a9ee-2a758f70ce63 -p BVR8Q~3sKlpct7mW3uoCbDA5SHeLrfLN_2xq5dbD --tenant 84f1e4ea-8554-43e1-8709-f0b8589ea118
 
     - name: Set up Azure CLI
       uses: azure/CLI@v2
       with:
         azcliversion: latest
         inlineScript: |
-            az account show
-    - name: Check current API revision
-      id: check_current_revision
+          az account show
+        
+    - name: Install yq
       run: |
-        if [[ -z "${{ env.RESOURCE_GROUP }}" || -z "${{ env.APIM_NAME }}" || -z "${{ env.API_ID }}" || -z "${{ env.REVISION_TO_ACTIVATE }}" ]]; then
-          echo "One or more required environment variables are missing."
-          exit 1
-        fi
-        current_revision=$(az apim api show --resource-group ${{ env.RESOURCE_GROUP }} --service-name ${{ env.APIM_NAME }} --api-id ${{ env.API_ID }} --query "revision" -o tsv)
-        echo "::set-output name=current_revision::${current_revision}"
+        sudo wget https://github.com/mikefarah/yq/releases/download/v4.16.1/yq_linux_amd64 -O /usr/bin/yq
+        sudo chmod +x /usr/bin/yq
 
-    - name: Activate API revision if not current
+    - name: Load variables from YAML
+      id: load-variables
       run: |
-        current_revision=$(az apim api show --resource-group ${{ env.RESOURCE_GROUP }} --service-name ${{ env.APIM_NAME }} --api-id ${{ env.API_ID }} --query "revision" -o tsv)
-        if [[ "$current_revision" != "${{ env.REVISION_TO_ACTIVATE }}" ]]; then
-          az apim api revision activate --resource-group ${{ env.RESOURCE_GROUP }} --service-name ${{ env.APIM_NAME }} --api-id ${{ env.API_ID }} --api-revision ${{ env.REVISION_TO_ACTIVATE }}
-          echo "Revision ${{ env.REVISION_TO_ACTIVATE }} activated successfully."
-        else
-          echo "Revision ${{ env.REVISION_TO_ACTIVATE }} is already the current revision."
-        fi
+        variables=$(cat variables/version/create_version.yaml)
+        echo "resourceGroupName=$(echo "$variables" | yq eval '.resourceGroupName' -)" >> $GITHUB_ENV
+        echo "serviceName=$(echo "$variables" | yq eval '.serviceName' -)" >> $GITHUB_ENV
+        echo "ApiId=$(echo "$variables" | yq eval '.ApiId' -)" >> $GITHUB_ENV
+        echo "Revision_to_delete=$(echo "$variables" | yq eval '.REVISION_TO_DELETE' -)" >> $GITHUB_ENV
+        
+    - name: Azure PowerShell script
+      env:
+        resourceGroupName: ${{ env.resourceGroupName }}
+        serviceName: ${{ env.serviceName }}
+      uses: azure/powershell@v2
+      with:
+        azPSVersion: "latest"
+        inlineScript: |
+          Connect-AzAccount -ServicePrincipal -Credential (New-Object System.Management.Automation.PSCredential('9231f0ec-8631-4826-a9ee-2a758f70ce63', (ConvertTo-SecureString 'BVR8Q~3sKlpct7mW3uoCbDA5SHeLrfLN_2xq5dbD' -AsPlainText -Force))) -Tenant '84f1e4ea-8554-43e1-8709-f0b8589ea118'
+          $apimContext = New-AzApiManagementContext -ResourceGroupName '${{ env.resourceGroupName }}' -ServiceName '${{ env.serviceName }}'
+          $apiRevisionExists = Get-AzApiManagementApiRevision -Context $apimContext -ApiId '${{ env.ApiId }} -ApiRevision '${{ env.Revision_to_delete }} -ErrorAction SilentlyContinue
+          if none {
+            # Get the current API revision
+            $currentApiRevision = Get-AzApiManagementApi -Context $apimContext -ApiId '${{ env.ApiId }} | Select-Object -ExpandProperty ApiRevision
 
+            if ($currentApiRevision -ne $apiRevisionToRemove) {
+                # Remove the specified API revision
+                Remove-AzApiManagementApiRevision -Context $apimContext -ApiId '${{ env.ApiId }} -ApiRevision '${{ env.Revision_to_delete }}'
+                
+                Write-Output "API revision '${{ env.Revision_to_delete }}' removed successfully."
+            } else {
+                Write-Output "Cannot remove the current API revision '${{ env.Revision_to_delete }}'."
+            }
+          }else {
+              Write-Output "API revision '${{ env.Revision_to_delete }}' does not exist."
+          }
+          
   delete-revision:
     if: ${{ github.event.inputs.action == 'delete' }}
     runs-on: ubuntu-latest
