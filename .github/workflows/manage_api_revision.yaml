@@ -139,13 +139,15 @@ jobs:
       with:
         azPSVersion: "latest"
         inlineScript: |
+          Write-Output "API version to delete is  '${{ env.Revision_to_delete }}'"
           Connect-AzAccount -ServicePrincipal -Credential (New-Object System.Management.Automation.PSCredential('a6d620a0-91ee-4644-8cef-8f1b477bc789', (ConvertTo-SecureString 'aTE8Q~V39jqp1pfotJ6c50.2-jFn59TymjMlScm4' -AsPlainText -Force))) -Tenant '84f1e4ea-8554-43e1-8709-f0b8589ea118'
           $apimContext = New-AzApiManagementContext -ResourceGroupName '${{ env.resourceGroupName }}' -ServiceName '${{ env.serviceName }}'
           $apiRevisionExists = Get-AzApiManagementApiRevision -Context $apimContext -ApiId '${{ env.ApiId }}' -ApiRevision '${{ env.Revision_to_delete }}' -ErrorAction SilentlyContinue
+          $apiRevisionExists
           if ($apiRevisionExists) {
             # Get the current API revision
             $currentApiRevision = Get-AzApiManagementApi -Context $apimContext -ApiId '${{ env.ApiId }}' | Select-Object -ExpandProperty ApiRevision
-
+            $currentApiRevision
             if ($currentApiRevision -ne '${{ env.Revision_to_delete }}') {
                 # Remove the specified API revision
                 Remove-AzApiManagementApiRevision -Context $apimContext -ApiId '${{ env.ApiId }}' -ApiRevision '${{ env.Revision_to_delete }}'
