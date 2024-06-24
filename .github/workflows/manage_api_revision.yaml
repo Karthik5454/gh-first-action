@@ -33,7 +33,7 @@ jobs:
           echo "${var}=${value}" >> $GITHUB_ENV
         done
     - name: Log in to Azure
-      run: az login --service-principal -u 9231f0ec-8631-4826-a9ee-2a758f70ce63 -p BVR8Q~3sKlpct7mW3uoCbDA5SHeLrfLN_2xq5dbD --tenant 84f1e4ea-8554-43e1-8709-f0b8589ea118
+      run: az login --service-principal -u a6d620a0-91ee-4644-8cef-8f1b477bc789 -p aTE8Q~V39jqp1pfotJ6c50.2-jFn59TymjMlScm4 --tenant 84f1e4ea-8554-43e1-8709-f0b8589ea118
 
     - name: Set up Azure CLI
       uses: azure/CLI@v2
@@ -79,10 +79,33 @@ jobs:
         sudo wget https://github.com/mikefarah/yq/releases/download/v4.16.1/yq_linux_amd64 -O /usr/bin/yq
         sudo chmod +x /usr/bin/yq
 
+  delete-revision:
+    if: ${{ github.event.inputs.action == 'delete' }}
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Log in to Azure
+      run: az login --service-principal -u a6d620a0-91ee-4644-8cef-8f1b477bc789 -p aTE8Q~V39jqp1pfotJ6c50.2-jFn59TymjMlScm4 --tenant 84f1e4ea-8554-43e1-8709-f0b8589ea118
+
+    - name: Set up Azure CLI
+      uses: azure/CLI@v2
+      with:
+        azcliversion: latest
+        inlineScript: |
+          az account show
+        
+    - name: Install yq
+      run: |
+        sudo wget https://github.com/mikefarah/yq/releases/download/v4.16.1/yq_linux_amd64 -O /usr/bin/yq
+        sudo chmod +x /usr/bin/yq
+
     - name: Load variables from YAML
       id: load-variables
       run: |
-        variables=$(cat variables/version/create_version.yaml)
+        variables=$(cat revision/variables/delete.yaml)
         echo "resourceGroupName=$(echo "$variables" | yq eval '.resourceGroupName' -)" >> $GITHUB_ENV
         echo "serviceName=$(echo "$variables" | yq eval '.serviceName' -)" >> $GITHUB_ENV
         echo "ApiId=$(echo "$variables" | yq eval '.ApiId' -)" >> $GITHUB_ENV
@@ -96,7 +119,7 @@ jobs:
       with:
         azPSVersion: "latest"
         inlineScript: |
-          Connect-AzAccount -ServicePrincipal -Credential (New-Object System.Management.Automation.PSCredential('9231f0ec-8631-4826-a9ee-2a758f70ce63', (ConvertTo-SecureString 'BVR8Q~3sKlpct7mW3uoCbDA5SHeLrfLN_2xq5dbD' -AsPlainText -Force))) -Tenant '84f1e4ea-8554-43e1-8709-f0b8589ea118'
+          Connect-AzAccount -ServicePrincipal -Credential (New-Object System.Management.Automation.PSCredential('a6d620a0-91ee-4644-8cef-8f1b477bc789', (ConvertTo-SecureString 'aTE8Q~V39jqp1pfotJ6c50.2-jFn59TymjMlScm4' -AsPlainText -Force))) -Tenant '84f1e4ea-8554-43e1-8709-f0b8589ea118'
           $apimContext = New-AzApiManagementContext -ResourceGroupName '${{ env.resourceGroupName }}' -ServiceName '${{ env.serviceName }}'
           $apiRevisionExists = Get-AzApiManagementApiRevision -Context $apimContext -ApiId '${{ env.ApiId }} -ApiRevision '${{ env.Revision_to_delete }} -ErrorAction SilentlyContinue
           if none {
@@ -114,50 +137,3 @@ jobs:
           }else {
               Write-Output "API revision '${{ env.Revision_to_delete }}' does not exist."
           }
-          
-  delete-revision:
-    if: ${{ github.event.inputs.action == 'delete' }}
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Set environment variables for delete action
-      id: set-delete-env
-      uses: actions/github-script@v6
-      with:
-        script: |
-          const fs = require('fs');
-          const yaml = require('js-yaml');
-          const filePath = 'revision/variables/delete.yaml';
-          const envVariables = yaml.load(fs.readFileSync(filePath, 'utf8'));
-
-          for (const [key, value] of Object.entries(envVariables)) {
-            core.exportVariable(key, value);
-          }
-
-    - name: Set up Azure CLI
-      uses: azure/CLI@v1
-      with:
-        azcliversion: latest
-
-    - name: Log in to Azure
-      run: az login --service-principal -u fca4af1e-520f-4fa2-9435-5d61bf418430 -p a-n8Q~ecSAmoyjoPW5V7F~2Zwj9Jm.nQWF62xc1S --tenant 84f1e4ea-8554-43e1-8709-f0b8589ea118
-
-    - name: Check if revision to delete exists
-      run: |
-        if [[ -z "${{ env.RESOURCE_GROUP }}" || -z "${{ env.APIM_NAME }}" || -z "${{ env.API_ID }}" || -z "${{ env.REVISION_TO_DELETE }}" ]]; then
-          echo "One or more required environment variables are missing."
-          exit 1
-        fi
-        revision_exists=$(az apim api revision list --resource-group ${{ env.RESOURCE_GROUP }} --service-name ${{ env.APIM_NAME }} --api-id ${{ env.API_ID }} --query "[?apiRevision=='${{ env.REVISION_TO_DELETE }}'].apiRevision" --output tsv)
-        current_revision=$(az apim api show --resource-group ${{ env.RESOURCE_GROUP }} --service-name ${{ env.APIM_NAME }} --api-id ${{ env.API_ID }} --query "revision" -o tsv)
-        if [[ -z $revision_exists ]]; then
-          echo "The revision ${{ env.REVISION_TO_DELETE }} does not exist."
-        elif [[ "$current_revision" == "${{ env.REVISION_TO_DELETE }}" ]]; then
-          echo "The revision ${{ env.REVISION_TO_DELETE }} is the current version and cannot be deleted."
-        else
-          az apim api revision delete --resource-group ${{ env.RESOURCE_GROUP }} --service-name ${{ env.APIM_NAME }} --api-id ${{ env.API_ID }} --api-revision ${{ env.REVISION_TO_DELETE }}
-          echo "Revision ${{ env.REVISION_TO_DELETE }} deleted successfully."
-        fi
