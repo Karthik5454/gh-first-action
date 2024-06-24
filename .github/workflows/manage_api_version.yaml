@@ -46,7 +46,6 @@ jobs:
       with:
         azPSVersion: "latest"
         inlineScript: |
-          #Connect-AzAccount -ServicePrincipal -Credential (New-Object System.Management.Automation.PSCredential('${{ secrets.AZURE_CLIENT_ID }}', (ConvertTo-SecureString '${{ secrets.AZURE_CLIENT_SECRET }}' -AsPlainText -Force))) -Tenant '${{ secrets.AZURE_TENANT_ID }}'
           $context = New-AzApiManagementContext -ResourceGroupName '${{env.resourceGroupName}}' -ServiceName '${{env.serviceName}}'
           $versionSet = Get-AzApiManagementApiVersionSet -Context $context -ApiVersionSetId "6678e9adccb244f33b121b04"
           New-AzApiManagementApi -Context $context -Name "echo-api-v3" -ApiId "echo-api-v3" -Description "Create Echo Api V3" -SubscriptionRequired -ServiceUrl "https://echoapi.cloudapp.net/echo/v3" -Path "echo" -Protocols @("https") -ApiVersionSetId $versionSet.ApiVersionSetId -SourceApiId $sourceApiId -ApiVersion "v3"
