@@ -33,18 +33,14 @@ jobs:
         sudo wget https://github.com/mikefarah/yq/releases/download/v4.16.1/yq_linux_amd64 -O /usr/bin/yq
         sudo chmod +x /usr/bin/yq
 
-    
     - name: Load variables from YAML
       id: load-variables
       run: |
         variables=$(cat variables/version/create_version.yaml)
-      
-    - name: Set variables
-      id: set-variables
-      run: |
-        resourceGroupName=$(echo "${{ steps.load-variables.outputs.variables }}" | yq eval '.resourceGroupName' -)
-        serviceName=$(echo "${{ steps.load-variables.outputs.variables }}" | yq eval '.serviceName' -)
-        sourceApiId=$(echo "${{ steps.load-variables.outputs.variables }}" | yq eval '.sourceApiId' -)
+        echo "resourceGroupName=$(echo "$variables" | yq eval '.resourceGroupName' -)" >> $GITHUB_ENV
+        echo "serviceName=$(echo "$variables" | yq eval '.serviceName' -)" >> $GITHUB_ENV
+        echo "sourceApiId=$(echo "$variables" | yq eval '.sourceApiId' -)" >> $GITHUB_ENV
+
 
     - name: Create API Version in Azure API Management
       run: |
