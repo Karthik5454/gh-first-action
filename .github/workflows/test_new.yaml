@@ -55,6 +55,6 @@ jobs:
           echo "Created version set ID: $version_set_id"
           # Import API
           specification_path="./src/apisconfig/specs.json"
-          az apim api import --resource-group '${{ env.RESOURCE_GROUP }}' --service-name '${{ env.APIM_NAME }}' --specification-format OpenApiJson --specification-path $specification_path --path "openai/deployments/${api}" --display-name "${api}" --api-version '${{ env.REVISION_NUMBER }}' --api-version-set-id $version_set_id --api-id "${api}"
+          az apim api import --resource-group '${{ env.RESOURCE_GROUP }}' --service-name '${{ env.APIM_NAME }}' --specification-format OpenApiJson --specification-path $specification_path --path "openai/deployments/${api}" --display-name "${api}" --api-version '${{ env.REVISION_NUMBER }}' --api-version-set-id "${api}" --api-id "${api}"
           echo "Imported API: $api"
         done
