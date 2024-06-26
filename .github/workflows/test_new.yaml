@@ -14,19 +14,21 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
       
-    - name: Log in to Azure
-      run: az login --service-principal -u c8fceac5-ea20-44cc-8534-a2feb426686f -p 3Mv8Q~MsjazoBo96pUPH0o5F5n1.9SPG5i7xWczl --tenant 84f1e4ea-8554-43e1-8709-f0b8589ea118
-
     - name: Install yq
       run: |
         sudo wget https://github.com/mikefarah/yq/releases/download/v4.16.1/yq_linux_amd64 -O /usr/bin/yq
         sudo chmod +x /usr/bin/yq
-    - name: Set environment variables for create action
+        
+    - name: Set environment variables for create action src/apisconfig/resource.yaml
       run: |
-        for var in $(yq eval 'keys | .[]' ./src/apisconfig/resource.yaml); do
-          value=$(yq eval ".${var}" src/revisionconfig/create.yaml)
+        for var in $(yq eval 'keys | .[]' src/apisconfig/resource.yaml); do
+          value=$(yq eval ".${var}" src/apisconfig/resource.yaml)
           echo "${var}=${value}" >> $GITHUB_ENV
         done
+      
+    - name: Log in to Azure
+      run: az login --service-principal -u c8fceac5-ea20-44cc-8534-a2feb426686f -p 3Mv8Q~MsjazoBo96pUPH0o5F5n1.9SPG5i7xWczl --tenant 84f1e4ea-8554-43e1-8709-f0b8589ea118
+
     - name: Set up Azure CLI
       uses: azure/CLI@v2
       with:
