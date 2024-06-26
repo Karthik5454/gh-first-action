@@ -44,6 +44,8 @@ jobs:
         
     - name: Create APIs in Azure API Management  
       run: |
+        apis=($(cat ./src/apisconfig/api.txt))
+        echo "APIs to create: ${apis[@]}"
         echo "APIs to create: $apis"
         echo "APIs to create: ${apis[@]}"
         for api in "${apis[@]}"; do
