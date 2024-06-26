@@ -1,0 +1,5 @@
+RESOURCE_GROUP: "a208790-infra-group"
+APIM_NAME: "a208790-apim-feng"
+API_ID: "echo-api"
+NEW_REVISION_NUMBER: "2"
+REVISION_DESCRIPTION: "This is the second revision"
