@@ -1,0 +1,53 @@
+name: Manage APIM Revisions
+
+on:
+  workflow_dispatch:
+
+jobs:
+  create-revision:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name:  Start the job
+      run: echo "Starting the api creation job job"
+
+    - name: Checkout code
+      uses: actions/checkout@v2
+      
+    - name: Log in to Azure
+      run: az login --service-principal -u c8fceac5-ea20-44cc-8534-a2feb426686f -p 3Mv8Q~MsjazoBo96pUPH0o5F5n1.9SPG5i7xWczl --tenant 84f1e4ea-8554-43e1-8709-f0b8589ea118
+
+    - name: Install yq
+      run: |
+        sudo wget https://github.com/mikefarah/yq/releases/download/v4.16.1/yq_linux_amd64 -O /usr/bin/yq
+        sudo chmod +x /usr/bin/yq
+    - name: Set environment variables for create action
+      run: |
+        for var in $(yq eval 'keys | .[]' src/apisconfig/resource.yaml); do
+          value=$(yq eval ".${var}" src/revisionconfig/create.yaml)
+          echo "${var}=${value}" >> $GITHUB_ENV
+        done
+    - name: Set up Azure CLI
+      uses: azure/CLI@v2
+      with:
+        azcliversion: latest
+        inlineScript: |
+            az account show
+            
+            
+    - name: Fetch API Names from File
+      run: |
+        apis=($(cat ./src/apisconfig/api.txt))
+        echo "APIs to create: ${apis[@]}"
+        
+    - name: Create APIs in Azure API Management  
+      run: |
+        for api in "${apis[@]}"; do
+          # Create API Version Set
+          version_set_id=$(az apim api versionset create  --resource-group '${{ env.RESOURCE_GROUP }}' --service-name '${{ env.APIM_NAME }}' --version-set-id "${api}" --display-name "${api}" --versioning-scheme "Segment" --query "id" -o tsv)
+          echo "Created version set ID: $version_set_id"
+          # Import API
+          specification_path="./src/apisconfig/specs.json"
+          az apim api import --resource-group '${{ env.RESOURCE_GROUP }}' --service-name '${{ env.APIM_NAME }}' --specification-format OpenApiJson --specification-path $specification_path --path "openai/deployments/${api}" --display-name "${api}" --api-version '${{ env.REVISION_NUMBER }}' --api-version-set-id $version_set_id --api-id "${api}"
+          echo "Imported API: $api"
+        done
