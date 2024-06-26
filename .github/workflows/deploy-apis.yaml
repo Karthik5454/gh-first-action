@@ -39,7 +39,7 @@ jobs:
             
     - name: Fetch API Names from File
       run: |
-        apis=($(cat src/apisconfig/api.txt))
+        apis=($(cat ./src/apisconfig/api.txt))
         echo "APIs to create: ${apis[@]}"
         
     - name: Create APIs in Azure API Management  
