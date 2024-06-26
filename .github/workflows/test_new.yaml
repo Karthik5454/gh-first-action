@@ -23,7 +23,7 @@ jobs:
         sudo chmod +x /usr/bin/yq
     - name: Set environment variables for create action
       run: |
-        for var in $(yq eval 'keys | .[]' src/apisconfig/resource.yaml); do
+        for var in $(yq eval 'keys | .[]' ./src/apisconfig/resource.yaml); do
           value=$(yq eval ".${var}" src/revisionconfig/create.yaml)
           echo "${var}=${value}" >> $GITHUB_ENV
         done
