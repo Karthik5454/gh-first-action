@@ -44,7 +44,9 @@ jobs:
         
     - name: Create APIs in Azure API Management  
       run: |
+        echo "APIs to create: ${apis[@]}"
         for api in "${apis[@]}"; do
+          echo "Creat API ID : api $api"
           # Create API Version Set
           version_set_id=$(az apim api versionset create  --resource-group '${{ env.RESOURCE_GROUP }}' --service-name '${{ env.APIM_NAME }}' --version-set-id "${api}" --display-name "${api}" --versioning-scheme "Segment" --query "id" -o tsv)
           echo "Created version set ID: $version_set_id"
