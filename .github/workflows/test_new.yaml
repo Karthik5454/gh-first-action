@@ -27,7 +27,7 @@ jobs:
         done
       
     - name: Log in to Azure
-      run: az login --service-principal -u c8fceac5-ea20-44cc-8534-a2feb426686f -p 3Mv8Q~MsjazoBo96pUPH0o5F5n1.9SPG5i7xWczl --tenant 84f1e4ea-8554-43e1-8709-f0b8589ea118
+      run: az login --service-principal -u 5d0400a1-102b-40ec-8e36-a317f8a44866 -p uuu8Q~4L4a0BbPnQeQ2jPxRbN3cEtryuufj.BbP6 --tenant 84f1e4ea-8554-43e1-8709-f0b8589ea118
 
     - name: Set up Azure CLI
       uses: azure/CLI@v2
@@ -41,20 +41,36 @@ jobs:
       run: |
         apis=($(cat ./src/apisconfig/api.txt))
         echo "APIs to create: ${apis[@]}"
-        
     - name: Create APIs in Azure API Management  
       run: |
-        apis=($(cat ./src/apisconfig/api.txt))
+        apis=($(cat ./src/importapiconfig/api.txt))
         echo "APIs to create: ${apis[@]}"
         echo "APIs to create: $apis"
         echo "APIs to create: ${apis[@]}"
         for api in "${apis[@]}"; do
           echo "Creat API ID : api $api"
           # Create API Version Set
+          # check if the version set exists
+          version_set_id_exists=$(az apim api versionset list --resource-group '${{ env.RESOURCE_GROUP }}' --service-name '${{ env.APIM_NAME }}' --query "[?name=='${api}'].id" -o tsv)
+          if [[ -z $version_set_id_exists ]]; then
+            version_set_id=$(az apim api versionset create  --resource-group '${{ env.RESOURCE_GROUP }}' --service-name '${{ env.APIM_NAME }}' --version-set-id "${api}" --display-name "${api}" --versioning-scheme "Segment" --query "id" -o tsv)
+            echo "Created version set ID: $version_set_id"
+          else
+            version_set_id=$version_set_id_exists
+            echo "Version set ID already exists: $version_set_id"
+          fi
           version_set_id=$(az apim api versionset create  --resource-group '${{ env.RESOURCE_GROUP }}' --service-name '${{ env.APIM_NAME }}' --version-set-id "${api}" --display-name "${api}" --versioning-scheme "Segment" --query "id" -o tsv)
           echo "Created version set ID: $version_set_id"
           # Import API
-          specification_path="./src/apisconfig/specs.json"
+          specification_path="./src/importapiconfig/specs.json"
+          #check if the API exists
+          api_exists=$(az apim api list --resource-group '${{ env.RESOURCE_GROUP }}' --service-name '${{ env.APIM_NAME }}' --query "[?name=='${api}'].id" -o tsv)
+          if [[ -z $api_exists ]]; then
+            az apim api import --resource-group '${{ env.RESOURCE_GROUP }}' --service-name '${{ env.APIM_NAME }}' --specification-format OpenApiJson --specification-path $specification_path --path "openai/deployments/${api}" --display-name "${api}" --api-version '${{ env.REVISION_NUMBER }}' --api-version-set-id "${api}" --api-id "${api}"
+            echo "Imported API: $api"
+          else
+            echo "API already exists: $api"
+          fi
           az apim api import --resource-group '${{ env.RESOURCE_GROUP }}' --service-name '${{ env.APIM_NAME }}' --specification-format OpenApiJson --specification-path $specification_path --path "openai/deployments/${api}" --display-name "${api}" --api-version '${{ env.REVISION_NUMBER }}' --api-version-set-id "${api}" --api-id "${api}"
           echo "Imported API: $api"
         done
