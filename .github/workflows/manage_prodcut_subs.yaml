@@ -25,6 +25,7 @@ jobs:
         pwsh -Command 'Install-Module -Name Az -Force -AllowClobber'
 
     - name: Manage API Management
+      shell: pwsh
       run: |
         # Replace with your Azure PowerShell script content
         $resourceGroupName = "1-f0fd95fc-playground-sandbox"
