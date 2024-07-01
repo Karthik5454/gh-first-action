@@ -58,13 +58,13 @@ jobs:
           Write-Output "API '$apiId1' already exists in product '$productName'."
         }
 
-        $exists = $exists = Get-AzApiManagementSubscription -Context $apimContext -SubscriptionId $subscriptionId -ErrorAction SilentlyContinue
+        $exists = Get-AzApiManagementSubscription -Context $apimContext -SubscriptionId $subscriptionId -ErrorAction SilentlyContinue
     
         # Check if subscription exists and create if it doesn't
         if (-not $exists) {
           Write-Output "Subscribing user to product '$productName'..."
           
-          $null = New-AzApiManagementSubscription -Context $apimContext -Scope "/products/$productName" -Name " $productName ProductSub"
+          $null = New-AzApiManagementSubscription -Context $apimContext -Scope "/products/$productName" -Name $productName -SubscriptionId $productName
 
         }
         else {
