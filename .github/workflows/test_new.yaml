@@ -43,7 +43,7 @@ jobs:
         echo "APIs to create: ${apis[@]}"
     - name: Create APIs in Azure API Management  
       run: |
-        apis=($(cat ./src/importapiconfig/api.txt))
+        apis=($(cat ./src/apisconfig/api.txt))
         echo "APIs to create: ${apis[@]}"
         echo "APIs to create: $apis"
         echo "APIs to create: ${apis[@]}"
@@ -62,7 +62,7 @@ jobs:
           version_set_id=$(az apim api versionset create  --resource-group '${{ env.RESOURCE_GROUP }}' --service-name '${{ env.APIM_NAME }}' --version-set-id "${api}" --display-name "${api}" --versioning-scheme "Segment" --query "id" -o tsv)
           echo "Created version set ID: $version_set_id"
           # Import API
-          specification_path="./src/importapiconfig/specs.json"
+          specification_path="./src/apisconfig/specs.json"
           #check if the API exists
           api_exists=$(az apim api list --resource-group '${{ env.RESOURCE_GROUP }}' --service-name '${{ env.APIM_NAME }}' --query "[?name=='${api}'].id" -o tsv)
           if [[ -z $api_exists ]]; then
