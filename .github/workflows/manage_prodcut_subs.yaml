@@ -19,11 +19,9 @@ jobs:
         azcliversion: latest
         inlineScript: |
             az account show
-
     - name: Install Azure PowerShell module
       run: |
         pwsh -Command 'Install-Module -Name Az -Force -AllowClobber'
-
     - name: Manage API Management
       shell: pwsh
       run: |
@@ -47,13 +45,20 @@ jobs:
         else {
           Write-Output "Product '$productName' already exists."
         }
-
         # Add APIs to the product
         Write-Output "Adding APIs to product '$productName'..."
+        # check api exists in the product
         
-        $null = Add-AzApiManagementApiToProduct -Context $apimContext -ProductId $productName -ApiId $apiId1
+        $apiExists = Get-AzApiManagementApiToProduct -Context $apimContext -ProductId $productName -ApiId $apiId1 -ErrorAction SilentlyContinue
+        if (-not $apiExists) {
+          Write-Output "API '$apiId1' does not exist in product '$productName'. Adding..."
+          $null = Add-AzApiManagementApiToProduct -Context $apimContext -ProductId $productName -ApiId $apiId1
+        }
+        else {
+          Write-Output "API '$apiId1' already exists in product '$productName'."
+        }
 
-        $exists = Get-AzApiManagementSubscription -Context $apimContext -SubscriptionId $subscriptionId -ErrorAction SilentlyContinue
+        $exists = Get-AzApiManagementSubscription -Context $apimContext -SubscriptionId $subscriptionId
     
         # Check if subscription exists and create if it doesn't
         if (-not $exists) {
