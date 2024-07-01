@@ -1,0 +1,63 @@
+name: Manage API Management
+
+on:
+  workflow_dispatch:  # Manually triggered workflow
+
+jobs:
+  manage-api-management:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install Azure CLI
+      uses: azure/CLI@v1
+      with:
+        azcliversion: latest
+
+    - name: Login to Azure
+      run: az login --service-principal -u 5d0400a1-102b-40ec-8e36-a317f8a44866 -p uuu8Q~4L4a0BbPnQeQ2jPxRbN3cEtryuufj.BbP6 --tenant 84f1e4ea-8554-43e1-8709-f0b8589ea118
+
+    - name: Install Azure PowerShell module
+      run: |
+        pwsh -Command 'Install-Module -Name Az -Force -AllowClobber'
+
+    - name: Manage API Management
+      run: |
+        # Replace with your Azure PowerShell script content
+        $resourceGroupName = "1-f0fd95fc-playground-sandbox"
+        $serviceName = "apim-test-karthik3"
+        $productName = "karthik-new"
+        $apiId1 = "echo-api"
+        $subscriptionId = "karthik-new"
+        $apimContext = New-AzApiManagementContext -ResourceGroupName $resourceGroupName -ServiceName $serviceName
+
+        # Check if the product already exists
+        $productExists = Get-AzApiManagementProduct -Context $apimContext -ProductId $productName -ErrorAction SilentlyContinue
+        
+        if (-not $productExists) {
+          Write-Output "Product '$productName' does not exist. Creating..."
+          # Create the product
+          $null = New-AzApiManagementProduct -Context $apimContext -ProductId $productName -Title $productName -Description "$productName Product" -SubscriptionRequired $True -State "Published"
+        }
+        else {
+          Write-Output "Product '$productName' already exists."
+        }
+
+        # Add APIs to the product
+        Write-Output "Adding APIs to product '$productName'..."
+        
+        $null = Add-AzApiManagementApiToProduct -Context $ApiMgmtContext -ProductId $productName -ApiId $apiId1
+
+        $exists = Get-AzApiManagementSubscription -Context $apimContext -SubscriptionId $subscriptionId
+    
+        # Check if subscription exists and create if it doesn't
+        if (-not $exists) {
+          Write-Output "Subscribing user to product '$productName'..."
+          
+          $null = New-AzApiManagementSubscription -Context $apimContext -Scope "/products/$productName" -Name " $productName ProductSub"
+
+        }
+        else {
+          Write-Output "Subscription for user '$userId' already exists. Skipping subscription creation."
+        }
