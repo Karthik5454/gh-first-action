@@ -10,10 +10,12 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Install Azure CLI
-      uses: azure/CLI@v1
+    - name: Set up Azure CLI
+      uses: azure/CLI@v2
       with:
         azcliversion: latest
+        inlineScript: |
+            az account show
 
     - name: Login to Azure
       run: az login --service-principal -u 5d0400a1-102b-40ec-8e36-a317f8a44866 -p uuu8Q~4L4a0BbPnQeQ2jPxRbN3cEtryuufj.BbP6 --tenant 84f1e4ea-8554-43e1-8709-f0b8589ea118
