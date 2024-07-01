@@ -48,6 +48,8 @@ jobs:
         echo "APIs to create: ${apis[@]}"
         echo "APIs to create: $apis"
         echo "APIs to create: ${apis[@]}"
+        echo "resource group : '${{ env.RESOURCE_GROUP }}'"
+        echo "resource group : '${{ env.APIM_NAME }}'"
         for api in "${apis[@]}"; do
           echo "Creat API ID : api $api"
           # Create API Version Set
