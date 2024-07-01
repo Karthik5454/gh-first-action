@@ -41,6 +41,7 @@ jobs:
       run: |
         apis=($(cat ./src/apisconfig/api.txt))
         echo "APIs to create: ${apis[@]}"
+        
     - name: Create APIs in Azure API Management  
       run: |
         apis=($(cat ./src/apisconfig/api.txt))
