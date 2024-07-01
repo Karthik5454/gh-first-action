@@ -49,7 +49,7 @@ jobs:
         Write-Output "Adding APIs to product '$productName'..."
         # check api exists in the product
         
-        $apiExists = Get-AzApiManagementApiToProduct -Context $apimContext -ProductId $productName -ApiId $apiId1 -ErrorAction SilentlyContinue
+        $apiExists = Get-AzApiManagementApi -Context $apimContext -ProductId $productName -ErrorAction SilentlyContinue
         if (-not $apiExists) {
           Write-Output "API '$apiId1' does not exist in product '$productName'. Adding..."
           $null = Add-AzApiManagementApiToProduct -Context $apimContext -ProductId $productName -ApiId $apiId1
