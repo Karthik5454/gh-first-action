@@ -33,9 +33,9 @@ jobs:
         $productName = "karthik"
         $apiId1 = "echo-api"
         $subscriptionId = "karthik"
-        $apimContext = New-AzApiManagementContext -ResourceGroupName $resourceGroupName -ServiceName $serviceName
+        
         Connect-AzAccount -ServicePrincipal -Credential (New-Object System.Management.Automation.PSCredential('5d0400a1-102b-40ec-8e36-a317f8a44866', (ConvertTo-SecureString 'uuu8Q~4L4a0BbPnQeQ2jPxRbN3cEtryuufj.BbP6' -AsPlainText -Force))) -Tenant '84f1e4ea-8554-43e1-8709-f0b8589ea118'
-
+        $apimContext = New-AzApiManagementContext -ResourceGroupName $resourceGroupName -ServiceName $serviceName
         # Check if the product already exists
         $productExists = Get-AzApiManagementProduct -Context $apimContext -ProductId $productName -ErrorAction SilentlyContinue
         
@@ -51,7 +51,7 @@ jobs:
         # Add APIs to the product
         Write-Output "Adding APIs to product '$productName'..."
         
-        $null = Add-AzApiManagementApiToProduct -Context $ApiMgmtContext -ProductId $productName -ApiId $apiId1
+        $null = Add-AzApiManagementApiToProduct -Context $apimContext -ProductId $productName -ApiId $apiId1
 
         $exists = Get-AzApiManagementSubscription -Context $apimContext -SubscriptionId $subscriptionId
     
