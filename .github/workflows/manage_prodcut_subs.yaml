@@ -53,7 +53,7 @@ jobs:
         
         $null = Add-AzApiManagementApiToProduct -Context $apimContext -ProductId $productName -ApiId $apiId1
 
-        $exists = Get-AzApiManagementSubscription -Context $apimContext -SubscriptionId $subscriptionId
+        $exists = Get-AzApiManagementSubscription -Context $apimContext -SubscriptionId $subscriptionId -ErrorAction SilentlyContinue
     
         # Check if subscription exists and create if it doesn't
         if (-not $exists) {
