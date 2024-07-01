@@ -1,4 +1,4 @@
-RESOURCE_GROUP: "1-c0f02659-playground-sandbox"
-APIM_NAME: "apim-test-karthik2"
+RESOURCE_GROUP: "1-f0fd95fc-playground-sandbox"
+APIM_NAME: "apim-test-karthik3"
 REVISION_NUMBER: "v1"
-REVISION_DESCRIPTION: "This is the second revision"
+REVISION_DESCRIPTION: "This is the first revision"
